@@ -1,0 +1,103 @@
+#include <iostream>
+#include <stdlib.h>
+#include <ctime>
+#include <cmath>
+using namespace std;
+
+int main(int argc, char** argv) {
+
+	int nvals = 20;
+	int B[nvals];
+	int e[nvals];
+	int s=20;//secret value;
+	int message = 0;//the message you want to encryp;
+	int q = 97; //prime value;
+	srand((unsigned)time(NULL));	
+	int rangeQ[q];
+	int A[nvals];
+	for(int i=0;i<q;i++)
+	{
+		rangeQ[i]=i;
+	}
+	for(int i=0;i<nvals;i++)
+	{
+		A[i]= rand()%(q);//generate nvals number random values; len(A)=20;
+	}
+	for(int x=0;x<nvals;x++)//x belong [0,20)
+	{
+		e[x]=rand()%(4-1+1)+1; //random e[x] belongs [1,4] .
+		B[x]=(A[x]*s+e[x])%q;
+	}
+	printf("\n------Parameters and keys-------\n");
+	printf("Message to send:\t%d\n",message);
+
+	cout<<"\nPublic Key (A):";
+	for(int i=0;i<nvals;i++)
+	{
+		cout<<A[i]<<"\t";
+	}
+	cout<<"\n\nPublic Key (B):";
+	for(int i=0;i<nvals;i++)
+	{
+		cout<<B[i]<<"\t";
+	}
+
+	cout<<"\n\nErrors (e):";
+	for(int i=0;i<nvals;i++)
+	{
+		cout<<e[i]<<"\t";
+	}
+	
+	printf("\n\nSecret key:\t\t%d\n",s);
+	printf("\n\nPrime number:\t\t%d\n",q);
+	printf("\n\n\n------Sampling Process from public key-------\n");
+	
+	int rangeNvals_1[19]; // range nvals-1  belongs [0,19);
+	for(int i=0;i<nvals-1;i++)
+	{
+		rangeNvals_1[i]=i;
+	}
+	int sample[nvals/4];
+	for(int i=0;i<nvals/4;i++)
+	{
+		sample[i]= rand()%(nvals-1);  //sample belongs [0,nvals-1)
+	}
+	printf("\nSampling :");
+	for(int i=0;i<nvals/4;i++)
+	{
+		cout<<sample[i]<<"\t";
+	}
+	
+	
+	int u=0,v=0;
+	for(int i=0;i<nvals/4;i++)
+	{
+		printf("\n[");
+		cout<<A[sample[i]]<<"\t,\t"<<B[sample[i]];
+		printf("]\n");
+		u=u+A[sample[i]];
+		v=v+B[sample[i]];
+	}
+	v=v+floor(q/2)*message;
+	
+	v = v%q;
+	u = u%q;
+	
+	printf("\n\n------Calculation of u and v -----------------\n");
+	printf("\nu:\t\t%d",u);
+	printf("\nv:\t\t%d",v);
+	
+	
+	int res=(v-s*u) % q;
+	
+	if(res<0) //judge mod operation , there are differences between C/C++ 、Java 、 Python about negative numbers mod. 
+	{
+		res=q-abs(res);
+	}
+	printf("\nResult is\t%d\n",res);
+	if (res>q/2)
+		printf("\nMessage is a 1\n");
+	else
+		printf("\nMessage is a 0\n");
+	return 0;
+}
